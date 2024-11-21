@@ -14,12 +14,12 @@ public record Assignment
 (
     int AssignmentId,
     int CallId,
-    int VolunteetId,
+    int VolunteerId,
     DateTime CallOpenTime,
     DateTime? CallCloseTime,
     Enum? CallCloseType
 )
 {
     /// Default constructor for stage 3
-    public Assignment() : this(0) { }
+    public Assignment() : this(0, 0, 0, DateTime.Now, DateTime.Now, null) { }
 }

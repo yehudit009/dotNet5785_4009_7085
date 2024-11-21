@@ -33,5 +33,5 @@ public record Volunteer
 )
 {
     /// Default constructor
-    public Volunteer() : this(0) { }
+    public Volunteer() : this(0, "", "", "", null, null, null, null, null, false, null, null) { }
 }
