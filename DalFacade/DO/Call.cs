@@ -25,5 +25,5 @@ public record Call
 )
 {
     /// Default constructor for stage 3
-    public Assignment() : this(0, 0, 0, DateTime.Now, DateTime.Now, null) { }
+    public Call() : this(0, null, "", "", 0, 0, DateTime.Now, DateTime.Now) { }
 }
