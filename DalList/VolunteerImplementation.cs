@@ -13,7 +13,8 @@ public class VolunteerImplementation : IVolunteer
         }
         else
         {
-            throw new NotImplementedException("An object of type Volunteer with such ID already exists");
+            throw new NotImplementedException($"An Volunteer with ID={item.VolunteerId} allready exist");
+
         }
     }
 
@@ -22,7 +23,7 @@ public class VolunteerImplementation : IVolunteer
         Volunteer? TempVol = Read(id);
         if (TempVol == null)
         {
-            throw new NotImplementedException("An object of type Volunteer with such ID does not exist");
+            throw new NotImplementedException($"An Volunteer with such ID={id} does not exist");
         }
         else
         {

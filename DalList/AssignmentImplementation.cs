@@ -16,7 +16,7 @@ public class AssignmentImplementation : IAssignment
         Assignment? TempVol = Read(id);
         if (TempVol == null)
         {
-            throw new NotImplementedException("An object of type Assignment with such ID does not exist");
+            throw new NotImplementedException($"An Assignment with ID={id} does not exist");
         }
         else
         {

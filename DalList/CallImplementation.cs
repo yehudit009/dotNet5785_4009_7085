@@ -16,7 +16,7 @@ public class CallImplementation : ICall
         Call? TempVol = Read(id);
         if (TempVol == null)
         {
-            throw new NotImplementedException("An object of type Call with such ID does not exist");
+            throw new NotImplementedException($"An Call with ID={id} does not exist");
         }
         else
         {
