@@ -1,0 +1,48 @@
+﻿namespace Dal;
+using DalApi;
+using DO;
+using System.Collections.Generic;
+
+public class AssignmentImplementation : IAssignment
+{
+    public void Create(Assignment item)
+    {
+        int newId = Config.NextAssignmentId;
+        Assignment CopyItem = item with { AssignmentId = newId };
+        DataSource.Assignments.Add(CopyItem);
+    }
+    public void Delete(int id)
+    {
+        Assignment? TempVol = Read(id);
+        if (TempVol == null)
+        {
+            throw new NotImplementedException("An object of type Assignment with such ID does not exist");
+        }
+        else
+        {
+            DataSource.Assignments.Remove(TempVol);
+        }
+    }
+
+    public void DeleteAll()
+    {
+        DataSource.Assignments.Clear();
+    }
+
+    public Assignment? Read(int id)
+    {
+        Assignment? TempVol = DataSource.Assignments.SingleOrDefault(obj => obj.AssignmentId == id);
+        return TempVol;
+    }
+
+    public List<Assignment> ReadAll()
+    {
+        return new List<Assignment>(DataSource.Assignments);
+    }
+
+    public void Update(Assignment item)
+    {
+        Delete(item.AssignmentId);
+        Create(item);
+    }
+}

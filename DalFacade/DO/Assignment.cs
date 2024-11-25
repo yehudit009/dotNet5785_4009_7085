@@ -6,7 +6,7 @@ namespace DO;
 /// </summary>
 /// <param name="AssignmentId">An ID number for each call assignment to a volunteer.</param>
 /// <param name="CallId">The number of the call the volunteer chose.</param>
-/// <param name="VolunteetId">The id of the voluneer who chose the call.</param>
+/// <param name="VolunteerId">The id of the voluneer who chose the call.</param>
 /// <param name="CallOpenTime">The time when the volunteer took the call.</param>
 /// <param name="CallCloseTime">The time when the volunteer finished handeling the call.</param>
 /// <param name="CallCloseType">The manner in which the reading treatment ended.</param>
