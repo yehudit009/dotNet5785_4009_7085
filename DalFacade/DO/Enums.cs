@@ -2,15 +2,12 @@
 
 public static class Enums
 {
-    // Enum לסוגי קריאות
     public enum CallType
     {
         Emergency,    // חירום
         Maintenance,  // תחזוקה
         Information   // מידע
     }
-
-    // Enum למצב הקריאה (פתוחה, סגורה, וכו')
     public enum CallStatus
     {
         Open,         // פתוחה
@@ -18,26 +15,45 @@ public static class Enums
         Expired,      // פגה תוקף
         InProgress    // בטיפול
     }
-
-    // Enum לסוגי סיום טיפול בהקצאה
     public enum CallCloseType
     {
         Handled,      // טופלה
         SelfCancel,   // ביטול עצמי
         ManagerCancel // ביטול על ידי מנהל
     }
-
-    // Enum למידע על תפקיד המתנדב
     public enum Role
     {
         Volunteer,    // מתנדב
         Manager       // מנהל
     }
-
-    // Enum לסוגי מרחקים (למשל: מרחק אווירי, מרחק הליכה)
     public enum DistanceType
     {
         AirDistance,  // מרחק אווירי
         WalkingDistance // מרחק הליכה
     }
+    public enum MainMenuOption
+    {
+        Exit = 0,
+        ShowEntity1Menu = 1,
+        ShowEntity2Menu = 2,
+        ShowEntity3Menu = 3,
+        InitializeData = 5,
+        ShowAllData = 6,
+        ShowConfigMenu = 7,
+        ResetDatabase = 8
+    }
+
+    // Enum for sub-menu options
+    public enum SubMenuOption
+    {
+        Exit = 0,
+        Create = 1,
+        Read = 2,
+        ReadAll = 3,
+        Update = 4,
+        Delete = 5,
+        DeleteAll = 6,
+        HandleExceptions = 7
+    }
+
 }

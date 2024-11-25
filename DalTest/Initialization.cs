@@ -205,6 +205,5 @@ public class Initialization
         CreateAssignments();
         CreateCalls();
         CreateVolunteers();
-
     }
 }
