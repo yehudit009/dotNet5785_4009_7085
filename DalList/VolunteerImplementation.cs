@@ -7,28 +7,21 @@ public class VolunteerImplementation : IVolunteer
 {
     public void Create(Volunteer item)
     {
-        if (Read(item.VolunteerId) == null)
+        Volunteer? TempVol = DataSource.Volunteers.SingleOrDefault(obj => obj.VolunteerId == item.VolunteerId);
+        if (TempVol == null)
         {
             DataSource.Volunteers.Add(item);
         }
         else
         {
             throw new NotImplementedException($"An Volunteer with ID={item.VolunteerId} allready exist");
-
         }
     }
 
     public void Delete(int id)
     {
         Volunteer? TempVol = Read(id);
-        if (TempVol == null)
-        {
-            throw new NotImplementedException($"An Volunteer with such ID={id} does not exist");
-        }
-        else
-        {
-            DataSource.Volunteers.Remove(TempVol);
-        }
+        DataSource.Volunteers.Remove(TempVol);
     }
 
     public void DeleteAll()
@@ -39,11 +32,19 @@ public class VolunteerImplementation : IVolunteer
     public Volunteer? Read(int id)
     {
         Volunteer? TempVol = DataSource.Volunteers.SingleOrDefault(obj => obj.VolunteerId == id);
-        return TempVol;
+        if (TempVol == null)
+        {
+            throw new NotImplementedException($"An Volunteer with such ID={id} does not exist");
+        }
+        else
+        {
+            return TempVol;
+        }
     }
 
     public List<Volunteer> ReadAll()
     {
+        Console.WriteLine("hi");
         return new List<Volunteer>(DataSource.Volunteers);
     }
 

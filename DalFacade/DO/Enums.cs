@@ -34,13 +34,13 @@ public static class Enums
     public enum MainMenuOption
     {
         Exit = 0,
-        ShowEntity1Menu = 1,
-        ShowEntity2Menu = 2,
-        ShowEntity3Menu = 3,
-        InitializeData = 5,
-        ShowAllData = 6,
-        ShowConfigMenu = 7,
-        ResetDatabase = 8
+        VolunteerMenu = 1,
+        CallMenu = 2,
+        AssignmantMenu = 3,
+        InitializeData = 4,
+        ShowAllData = 5,
+        ConfigMenu = 6,
+        ResetDatabase = 7
     }
 
     // Enum for sub-menu options
@@ -54,6 +54,16 @@ public static class Enums
         Delete = 5,
         DeleteAll = 6,
         HandleExceptions = 7
+    }
+    public enum ConfigMenuOption
+    {
+        Exit = 0,
+        AdvanceClockMinute = 1,
+        AdvanceClockHour = 2,
+        DisplayClock = 3,
+        SetParameter = 4,
+        DisplayParameter = 5,
+        ResetAll = 6
     }
 
 }

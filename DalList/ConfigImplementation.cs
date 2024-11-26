@@ -11,7 +11,6 @@ public class ConfigImplementation : IConfig
         get => Config.RiskRange;
         set => Config.RiskRange = value;
     }
-
     public void Reset()
     {
         Config.Reset();

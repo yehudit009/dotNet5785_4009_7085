@@ -1,13 +1,4 @@
-﻿//using Dal;
-//using DalApi;
-//using DO;
-//using System;
-//using System.Collections.Generic;
-//using static DO.Enums;
-////using System.Windows.Forms;
-//namespace DalTest
-
-using Dal;
+﻿using Dal;
 using DalApi;
 using DO;
 using System;
@@ -21,7 +12,6 @@ namespace DalTest
         private static ICall? s_dalCall = new CallImplementation(); //stage 1
         private static IAssignment? s_dalAssignment = new AssignmentImplementation(); //stage 1
         private static IConfig? s_dalConfig = new ConfigImplementation(); //stage 1
-
         static void Main(string[] args)
         {
             try
@@ -43,30 +33,31 @@ namespace DalTest
                 Console.Write("Enter your choice: ");
                 if (int.TryParse(Console.ReadLine(), out int choice))
                 {
-                    switch ((MainMenuOption)choice)
+                    switch ((Enums.MainMenuOption)choice)
                     {
-                        case MainMenuOption.Exit:
+                        case Enums.MainMenuOption.Exit:
                             Console.WriteLine("Exiting the program...");
+                            Environment.Exit(0);
                             return;
-                        case MainMenuOption.StudentMenu:
-                            HandleSubMenu("Student", s_dalVolunteer);
+                        case Enums.MainMenuOption.VolunteerMenu:
+                            HandleSubMenu("Volunteer", s_dalVolunteer);
                             break;
-                        case MainMenuOption.CourseMenu:
+                        case Enums.MainMenuOption.CallMenu:
                             HandleSubMenu("call", s_dalCall);
                             break;
-                        case MainMenuOption.LinkMenu:
+                        case Enums.MainMenuOption.AssignmantMenu:
                             HandleSubMenu("assignmant", s_dalAssignment);
                             break;
-                        case MainMenuOption.InitializeData:
+                        case Enums.MainMenuOption.InitializeData:
                             DoInitialization();
                             break;
-                        case MainMenuOption.ShowAllData:
+                        case Enums.MainMenuOption.ShowAllData:
                             ShowAllData();
                             break;
-                        case MainMenuOption.ConfigMenu:
-                            HandleConfigMenu();
+                        case Enums.MainMenuOption.ConfigMenu:
+                            HandleConfigSubMenu(s_dalConfig);
                             break;
-                        case MainMenuOption.ResetDatabase:
+                        case Enums.MainMenuOption.ResetDatabase:
                             ResetDatabase();
                             break;
                         default:
@@ -85,14 +76,130 @@ namespace DalTest
         {
             Console.WriteLine("\n=== Main Menu ===");
             Console.WriteLine("0. Exit");
-            Console.WriteLine("1. Student Menu");
-            Console.WriteLine("2. Course Menu");
-            Console.WriteLine("3. Link Menu");
+            Console.WriteLine("1. Volunteer Menu");
+            Console.WriteLine("2. Call Menu");
+            Console.WriteLine("3. Assignmant Menu");
             Console.WriteLine("4. Initialize Data");
             Console.WriteLine("5. Show All Data");
             Console.WriteLine("6. Config Menu");
             Console.WriteLine("7. Reset Database");
             Console.WriteLine("=================");
+        }
+
+        private static void DoInitialization()
+        {
+            Console.WriteLine("Initializing database...");
+            Initialization.Do(s_dalAssignment, s_dalCall, s_dalVolunteer, s_dalConfig);
+        }
+
+        private static void ShowAllData()
+        {
+            Console.WriteLine("Displaying all data...");
+            ReadAllVolunteer();
+            //ReadAllCalls();
+            //ReadAllAssignmant();
+        }
+
+        private static void HandleConfigSubMenu(object? dalConfig)
+        {
+            if (dalConfig == null)
+            {
+                Console.WriteLine("Configuration object is not initialized.");
+                return;
+            }
+
+            while (true)
+            {
+                DisplayConfigSubMenu();
+                Console.Write("Enter your choice: ");
+                if (int.TryParse(Console.ReadLine(), out int choice))
+                {
+                    switch ((Enums.ConfigMenuOption)choice)
+                    {
+                        case Enums.ConfigMenuOption.Exit:
+                            Console.WriteLine("Exiting Configuration Sub-Menu...");
+                            DisplayMainMenu();
+                            return;
+
+                        case Enums.ConfigMenuOption.AdvanceClockMinute:
+                            updateClockByMinute(1);
+                            break;
+
+                        case Enums.ConfigMenuOption.AdvanceClockHour:
+                            updateClockByHour(1);
+                            break;
+
+                        case Enums.ConfigMenuOption.DisplayClock:
+                            ShowCurrentTime();
+                            break;
+
+                        case Enums.ConfigMenuOption.SetParameter:
+                            //SetParameter();
+                            break;
+
+                        case Enums.ConfigMenuOption.DisplayParameter:
+                            //DisplayParameter();
+                            break;
+
+                        case Enums.ConfigMenuOption.ResetAll:
+                            ResetAllConfig();
+                            break;
+
+                        default:
+                            Console.WriteLine("Invalid choice. Please try again.");
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                }
+            }
+        }
+
+        private static void DisplayConfigSubMenu()
+        {
+            Console.WriteLine("\n=== Configuration Menu ===");
+            Console.WriteLine("0. Exit");
+            Console.WriteLine("1. Advance system clock by one minute");
+            Console.WriteLine("2. Advance system clock by one hour");
+            Console.WriteLine("3. Display current system clock value");
+            Console.WriteLine("4. Set a new value for a configuration parameter");
+            Console.WriteLine("5. Display current value of a configuration parameter");
+            Console.WriteLine("6. Reset all configuration values");
+            Console.WriteLine("===========================");
+        }
+
+        private static void updateClockByMinute(int minute)
+        {
+            DateTime currentClock = s_dalConfig.Clock; // קריאת השעון הנוכחי דרך ה־`get`
+            DateTime updatedClock = currentClock + TimeSpan.FromMinutes(minute); // חישוב זמן מעודכן
+            s_dalConfig.Clock = updatedClock; // עדכון השעון דרך ה־`set`
+            Console.WriteLine($"System clock advanced by {minute} minute(s). Current clock: {s_dalConfig.Clock}");
+        }
+        private static void updateClockByHour(int hour)
+        {
+            DateTime currentClock = s_dalConfig.Clock; // קריאת השעון הנוכחי
+            DateTime updatedClock = currentClock + TimeSpan.FromHours(hour); // חישוב זמן מעודכן
+            s_dalConfig.Clock = updatedClock; // עדכון השעון
+            Console.WriteLine($"System clock advanced by {hour} hour(s). Current clock: {s_dalConfig.Clock}");
+        }
+        private static void ShowCurrentTime()
+        {
+            Console.WriteLine($"Current clock: {s_dalConfig.Clock}");
+        }
+        private static void ResetAllConfig()
+        {
+            s_dalConfig.Reset();
+        }
+
+        private static void ResetDatabase()
+        {
+            Console.WriteLine("Resetting database...");
+            s_dalVolunteer?.DeleteAll();
+            s_dalCall?.DeleteAll();
+            s_dalAssignment?.DeleteAll();
+            s_dalConfig?.Reset();
         }
 
         private static void HandleSubMenu(string entityName, object? dalObject)
@@ -106,31 +213,31 @@ namespace DalTest
             while (true)
             {
                 DisplaySubMenu(entityName);
-
                 Console.Write("Enter your choice: ");
                 if (int.TryParse(Console.ReadLine(), out int choice))
                 {
-                    switch ((SubMenuOption)choice)
+                    switch ((Enums.SubMenuOption)choice)
                     {
-                        case SubMenuOption.Exit:
+                        case Enums.SubMenuOption.Exit:
                             Console.WriteLine($"Exiting {entityName} menu...");
+                            DisplayMainMenu();
                             return;
-                        case SubMenuOption.Create:
+                        case Enums.SubMenuOption.Create:
                             HandleCreate(entityName, dalObject);
                             break;
-                        case SubMenuOption.Read:
+                        case Enums.SubMenuOption.Read:
                             HandleRead(entityName, dalObject);
                             break;
-                        case SubMenuOption.ReadAll:
+                        case Enums.SubMenuOption.ReadAll:
                             HandleReadAll(entityName, dalObject);
                             break;
-                        case SubMenuOption.Update:
+                        case Enums.SubMenuOption.Update:
                             HandleUpdate(entityName, dalObject);
                             break;
-                        case SubMenuOption.Delete:
+                        case Enums.SubMenuOption.Delete:
                             HandleDelete(entityName, dalObject);
                             break;
-                        case SubMenuOption.DeleteAll:
+                        case Enums.SubMenuOption.DeleteAll:
                             HandleDeleteAll(entityName, dalObject);
                             break;
                         default:
@@ -157,109 +264,118 @@ namespace DalTest
             Console.WriteLine("6. Delete All");
             Console.WriteLine("=================");
         }
+        //הוספת בדיקה ושליחה למתודה מתאימה לפי class
 
         private static void HandleCreate(string entityName, object dalObject)
         {
             Console.WriteLine($"Creating a new {entityName}...");
-            AddVolunteer();
-
+            CreateVolunteer();
         }
 
         private static void HandleRead(string entityName, object dalObject)
         {
             Console.WriteLine($"Reading {entityName} by ID...");
-            // Implement read logic for specific entity
+            ReadVolunteer();
         }
 
         private static void HandleReadAll(string entityName, object dalObject)
         {
             Console.WriteLine($"Reading all {entityName}s...");
-            // Implement read all logic for specific entity
+            ReadAllVolunteer();
         }
 
         private static void HandleUpdate(string entityName, object dalObject)
         {
             Console.WriteLine($"Updating {entityName}...");
             // Implement update logic for specific entity
+            UpdateVolunteer();
         }
 
         private static void HandleDelete(string entityName, object dalObject)
         {
             Console.WriteLine($"Deleting {entityName} by ID...");
             // Implement delete logic for specific entity
+            DeleteVolunteer();
         }
 
         private static void HandleDeleteAll(string entityName, object dalObject)
         {
             Console.WriteLine($"Deleting all {entityName}s...");
             // Implement delete all logic for specific entity
+            DeleteAllVolunteer();
         }
-
-        private static void DoInitialization()
-        {
-            Console.WriteLine("Initializing database...");
-            Initialization.Do(s_dalAssignment, s_dalCall, s_dalVolunteer, s_dalConfig);
-        }
-
-        private static void ShowAllData()
-        {
-            Console.WriteLine("Displaying all data...");
-            // Implement logic to display all data
-        }
-
-        private static void HandleConfigMenu()
-        {
-            Console.WriteLine("Handling configuration...");
-            // Implement config menu logic
-        }
-
-        private static void ResetDatabase()
-        {
-            Console.WriteLine("Resetting database...");
-            s_dalVolunteer?.DeleteAll();
-            s_dalCall?.DeleteAll();
-            s_dalAssignment?.DeleteAll();
-            //s_dalConfig?.ResetConfig();
-        }
-        private static void AddVolunteer()
+        private static void CreateVolunteer()
         {
             Console.WriteLine("Enter your Id: ");
             int Id;
-            while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Input to install"); }
+            while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
             Console.WriteLine("Enter your Name: ");
             string Name = Console.ReadLine();
             Console.WriteLine("Enter your PhoneNumber: ");
             string PhoneNumber = Console.ReadLine();
             Console.WriteLine("Enter your Email: ");
             string Email = Console.ReadLine();
+            Console.WriteLine("Enter your Password: ");
+            string Password = Console.ReadLine();
             Console.WriteLine("Enter your Location: ");
             string Location = Console.ReadLine();
-            Volunteer volunteer = new Volunteer(Id, Name, PhoneNumber, Email, Location, null, null, null, null, false, null, null);
+            Volunteer volunteer = new Volunteer(Id, Name, PhoneNumber, Email, Password, Location, null, null, null, false, null, null);
             s_dalVolunteer.Create(volunteer);
         }
-    }
+        private static void ReadVolunteer()
+        {
+            Console.WriteLine("Enter Id: ");
+            int Id;
+            while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
+            Volunteer My = s_dalVolunteer.Read(Id);
+            Console.WriteLine(My);
+        }
+        private static void ReadAllVolunteer()
+        {
+            List<Volunteer> myList = s_dalVolunteer!.ReadAll();
+            // בדיקה אם הרשימה ריקה
+            if (myList.Count == 0)
+            {
+                Console.WriteLine("No volunteers found.");
+                return;
+            }
+            // מעבר על כל הפריטים ברשימה והדפסתם
+            Console.WriteLine("List of Volunteers:");
+            foreach (var volunteer in myList)
+            {
+                Console.WriteLine(volunteer); // מתבסס על ToString של Volunteer
+            }
+        }
+        private static void UpdateVolunteer()
+        {
+            Console.WriteLine("Enter your Id: ");
+            int Id;
+            while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
+            Console.WriteLine("Enter your Name: ");
+            string Name = Console.ReadLine();
+            Console.WriteLine("Enter your PhoneNumber: ");
+            string PhoneNumber = Console.ReadLine();
+            Console.WriteLine("Enter your Email: ");
+            string Email = Console.ReadLine();
+            Console.WriteLine("Enter your Password: ");
+            string Password = Console.ReadLine();
+            Console.WriteLine("Enter your Location: ");
+            string Location = Console.ReadLine();
+            Volunteer volunteer = new Volunteer(Id, Name, PhoneNumber, Email, Password, Location, null, null, null, false, null, null);
+            s_dalVolunteer.Update(volunteer);
+        }
+        private static void DeleteVolunteer()
+        {
+            Console.WriteLine("Enter Id: ");
+            int Id;
+            while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
+            s_dalVolunteer.Delete(Id);
+            Console.WriteLine("yay");
+        }
+        private static void DeleteAllVolunteer()
+        {
+            s_dalVolunteer.DeleteAll();
+        }
 
-    // Enum definitions
-    public enum MainMenuOption
-    {
-        Exit = 0,
-        StudentMenu = 1,
-        CourseMenu = 2,
-        LinkMenu = 3,
-        InitializeData = 4,
-        ShowAllData = 5,
-        ConfigMenu = 6,
-        ResetDatabase = 7
-    }
-
-    public enum SubMenuOption
-    {
-        Exit = 0,
-        Create = 1,
-        Read = 2,
-        ReadAll = 3,
-        Update = 4,
-        Delete = 5,
-        DeleteAll = 6
     }
 }
