@@ -53,7 +53,6 @@ public static class Enums
         Update = 4,
         Delete = 5,
         DeleteAll = 6,
-        HandleExceptions = 7
     }
     public enum ConfigMenuOption
     {
@@ -65,5 +64,17 @@ public static class Enums
         DisplayParameter = 5,
         ResetAll = 6
     }
-
+    public enum VolunteerProp
+    {
+        id=0,
+        name=1,
+        phoneNumber=2,
+        email=3,
+        password=4,
+        address=5,
+        role=6,
+        isActive=7,
+        maxReadingDistance=8,
+        distanceType=9
+    }
 }

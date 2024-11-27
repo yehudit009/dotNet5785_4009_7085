@@ -13,7 +13,7 @@ public class Initialization
     private static readonly Random s_rand = new();
 
     //Initializing the Volunteers lists
-        private static void CreateVolunteers()
+    private static void CreateVolunteers()
     {
         string[] volunteerNames =
         {
@@ -37,6 +37,8 @@ public class Initialization
             ("606 Kaplan St, Be'er Sheva, Israel", 31.2510, 34.7913), // Be'er Sheva
             ("707 HaMasger St, Ashdod, Israel", 31.8018, 34.6482) // Ashdod
         };
+        bool managerAssigned = false; // משתנה לעקוב אם כבר הוקצה מנהל
+
 
         foreach (var name in volunteerNames)
         {
@@ -54,8 +56,11 @@ public class Initialization
             // Assign a random address with its coordinates
             var selectedAddress = addressesWithCoordinates[s_rand.Next(addressesWithCoordinates.Length)];
 
+            // אם אין עדיין מנהל, המתנדב הנוכחי יהפוך למנהל, אחרת מתנדב רגיל
+            var role = managerAssigned ? Enums.Role.Volunteer : Enums.Role.Manager;
+            managerAssigned = true; // לאחר שהוגדר מנהל, נעדכן שהוקצה מנהל
+
             // Generate other fields
-            var role = (Enums.Role)s_rand.Next(0, Enum.GetValues(typeof(Enums.Role)).Length); // הנחה - יש 3 תפקידים שונים
             bool isActive = s_rand.NextDouble() > 0.2;  // 80% מתנדבים פעילים // האם פעיל
             double? maxReadingDistance = s_rand.Next(1, 100); // מרחק מירבי
             var distanceType = (Enums.DistanceType)(s_rand.Next(0, 2)); // הנחה - יש 2 סוגי מרחקים
@@ -67,9 +72,9 @@ public class Initialization
                 phoneNumber,
                 email,
                 password,
-                selectedAddress.address, // כתובת
-                selectedAddress.latitude, // קו רוחב
-                selectedAddress.longitude, // קו אורך
+                selectedAddress.address,
+                selectedAddress.latitude,
+                selectedAddress.longitude,
                 role,
                 isActive,
                 maxReadingDistance,
@@ -95,38 +100,30 @@ public class Initialization
         {
         "123 Main St, CityA", "456 Oak St, CityB", "789 Pine St, CityC"
     };
-
-        // רשימת קריאות שתיווצר
+        // רשימת קריאות 
         var calls = new List<Call>();
 
-        // יצירת 50 קריאות
         for (int i = 0; i < 50; i++)
         {
-
-            // בחירת סוג קריאה ותיאור רנדומלי
             var callType = (Enums.CallType)s_rand.Next(0, Enum.GetValues(typeof(Enums.CallType)).Length);
             string callDescription = callDescriptions[s_rand.Next(callDescriptions.Length)];
 
             // בחירת כתובת רנדומלית
             string callAddress = addresses[s_rand.Next(addresses.Length)];
-
             // קואורדינטות רנדומליות למיקום הקריאה
             double callLatitude = 31.5 + s_rand.NextDouble();
             double callLongitude = 34.5 + s_rand.NextDouble();
 
             // זמן פתיחה רנדומלי של הקריאה (לפני הזמן הנוכחי)
             DateTime callOpenTime = DateTime.Now.AddMinutes(-s_rand.Next(30, 240));
-
             // אם הקריאה לא הוקצתה (15 קריאות)
             bool isAssigned = i < 35; // לפחות 15 קריאות לא הוקצו
-
             // אם הקריאה פג תוקפן (5 קריאות)
             DateTime? callCloseTime = null;
             if (i >= 45) // לפחות 5 קריאות שפג תוקפן
             {
                 callCloseTime = callOpenTime.AddMinutes(s_rand.Next(180, 300)); // קריאה שפג תוקפה
             }
-
             // הוספת הקריאה לרשימה
             calls.Add(new Call(
                 0,
@@ -145,24 +142,19 @@ public class Initialization
                 // אין צורך לשייך לה מתנדב
             }
         }
-
         // הוספת הקריאות למאגר
         foreach (var call in calls)
         {
             s_dalCall!.Create(call);
         }
     }
-
     //Initializing the Assignments lists
     private static void CreateAssignments()
     {
-
         var existingCalls = s_dalCall!.ReadAll();
         var existingVolunteers = s_dalVolunteer!.ReadAll();
-
         // מספר ההקצאות שתרצה ליצור
         int numberOfAssignments = 50;
-
         // הגדרת סוגי סיום טיפול מתוך Enum
         var closeTypes = Enum.GetValues(typeof(Enums.CallCloseType)).Cast<Enums.CallCloseType>().ToArray();
 
@@ -171,11 +163,9 @@ public class Initialization
             // בחירת קריאה רנדומלית
             var call = existingCalls[s_rand.Next(existingCalls.Count)];
             int callId = call.CallId;
-
             // בחירת מתנדב רנדומלי
             var volunteer = existingVolunteers[s_rand.Next(existingVolunteers.Count)];
             int volunteerId = volunteer.VolunteerId;
-
             // זמן טיפול (פתיחה וסיום)
             DateTime callOpenTime = call.CallOpenTime.AddMinutes(s_rand.Next(1, 60)); // התחלה אחרי זמן הפתיחה של הקריאה
             DateTime? callCloseTime = null;
@@ -187,7 +177,7 @@ public class Initialization
                 callCloseTime = callOpenTime.AddMinutes(s_rand.Next(10, 120)); // זמן סיום רנדומלי
                 callCloseType = closeTypes[s_rand.Next(closeTypes.Length)]; // סוג סיום אקראי מתוך Enum
             }
-            else if (call.CallCloseTime.HasValue && call.CallCloseTime < s_dalConfig.Clock) // קריאות שלא טופלו בזמן
+            else // קריאות שלא טופלו בזמן
             {
                 callCloseType = Enums.CallCloseType.ManagerCancel; // קריאה לא טופלה בזמן - בוטלה ע"י מנהל
             }
@@ -199,7 +189,7 @@ public class Initialization
                 volunteerId,
                 callOpenTime,
                 callCloseTime,
-                callCloseType      // סוג המרחק (אווירי או הליכה וכו')
+                callCloseType 
             ));
         }
     }
@@ -211,16 +201,14 @@ public class Initialization
         s_dalVolunteer = dalVolunteer ?? throw new NullReferenceException("DAL object can not be null!");
 
         Console.WriteLine("Reset Configuration values and List values...");
-        s_dalConfig.Reset(); //stage 1
         s_dalAssignment.DeleteAll(); //stage 1
-        s_dalConfig.Reset(); //stage 1
         s_dalCall.DeleteAll();
-        s_dalConfig.Reset(); //stage 1
         s_dalVolunteer.DeleteAll();
+        //s_dalConfig.Reset(); //stage 1
         //...
-        Console.WriteLine("Initializing Students list ...");
-        CreateAssignments();
-        CreateCalls();
+        Console.WriteLine("Initializing list ...");
         CreateVolunteers();
+        CreateCalls();
+        CreateAssignments();
     }
 }

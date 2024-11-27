@@ -26,7 +26,10 @@ public class CallImplementation : ICall
 
     public void DeleteAll()
     {
-        DataSource.Calls.Clear();
+        if (DataSource.Calls.Count > 0)
+        {
+            DataSource.Calls.Clear();
+        }
     }
 
     public Call? Read(int id)

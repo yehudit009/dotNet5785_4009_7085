@@ -21,25 +21,24 @@ public class VolunteerImplementation : IVolunteer
     public void Delete(int id)
     {
         Volunteer? TempVol = Read(id);
-        DataSource.Volunteers.Remove(TempVol);
+        if (TempVol != null)
+        {
+            DataSource.Volunteers.Remove(TempVol);
+        }
     }
 
     public void DeleteAll()
     {
-        DataSource.Volunteers.Clear();
+        if (DataSource.Volunteers.Count > 0)
+        {
+            DataSource.Volunteers.Clear();
+        }
     }
 
     public Volunteer? Read(int id)
     {
         Volunteer? TempVol = DataSource.Volunteers.SingleOrDefault(obj => obj.VolunteerId == id);
-        if (TempVol == null)
-        {
-            throw new NotImplementedException($"An Volunteer with such ID={id} does not exist");
-        }
-        else
-        {
-            return TempVol;
-        }
+        return TempVol;
     }
 
     public List<Volunteer> ReadAll()

@@ -26,7 +26,10 @@ public class AssignmentImplementation : IAssignment
 
     public void DeleteAll()
     {
-        DataSource.Assignments.Clear();
+        if (DataSource.Assignments.Count > 0)
+        {
+            DataSource.Assignments.Clear();
+        }
     }
 
     public Assignment? Read(int id)
