@@ -20,9 +20,11 @@ namespace DalTest
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
+        // Main menu loop to navigate the application
         private static void RunMainMenu()
         {
             while (true)
+
             {
                 Console.WriteLine("Main Menu");
                 Enums.MainMenuOption choice = GetEnumFromUser<Enums.MainMenuOption>();
@@ -59,24 +61,28 @@ namespace DalTest
                 }
             }
         }
+        // Initializes the system data
         private static void DoInitialization()
         {
             Console.WriteLine("Initializing database...");
             Initialization.Do(s_dal);
         }
+        // Displays all available data in the database
         private static void ShowAllData()
         {
             Console.WriteLine("Displaying all data...");
-            ReadAllVolunteer();
-            //ReadAllCalls();
-            //ReadAllAssignmant();
+            ReadAllVolunteers();
+            ReadAllCalls();
+            ReadAllAssignmants();
         }
+        // Configuration submenu for managing system settings
         private static void HandleConfigSubMenu()
         {
             while (true)
             {
                 Console.WriteLine("Config Menu");
                 Enums.ConfigMenuOption choice = GetEnumFromUser<Enums.ConfigMenuOption>();
+                // Handles configuration-related options
                 switch (choice)
                 {
                     case Enums.ConfigMenuOption.Exit:
@@ -107,6 +113,7 @@ namespace DalTest
                 }
             }
         }
+        // Updates the clock by adding minutes
         private static void updateClockByMinute(int minute)
         {
             DateTime currentClock = s_dal.Config.Clock;
@@ -114,6 +121,7 @@ namespace DalTest
             s_dal.Config.Clock = updatedClock;
             Console.WriteLine($"System clock advanced by {minute} minute(s). Current clock: {s_dal.Config.Clock}");
         }
+        // Updates the clock by adding hours
         private static void updateClockByHour(int hour)
         {
             DateTime currentClock = s_dal.Config.Clock;
@@ -121,14 +129,17 @@ namespace DalTest
             s_dal.Config.Clock = updatedClock;
             Console.WriteLine($"System clock advanced by {hour} hour(s). Current clock: {s_dal.Config.Clock}");
         }
+        // Displays the current time of the system clock
         private static void ShowCurrentTime()
         {
             Console.WriteLine($"Current clock: {s_dal.Config.Clock}");
         }
+        // Resets all configuration settings to their default values
         private static void ResetAllConfig()
         {
             s_dal.Config.Reset();
         }
+        // Resets all data in the database
         private static void ResetDatabase()
         {
             Console.WriteLine("Resetting database...");
@@ -137,6 +148,7 @@ namespace DalTest
             s_dal.Assignment?.DeleteAll();
             s_dal.Config?.Reset();
         }
+        // Handles submenu operations for different entities (volunteer, call, or assignment)
         private static void HandleSubMenu(string entityName)
         {
             while (true)
@@ -173,19 +185,20 @@ namespace DalTest
                 }
             }
         }
+        // Method to dynamically retrieve and handle user input for enum choices
         static T GetEnumFromUser<T>() where T : struct, Enum
         {
             while (true)
             {
                 foreach (var value in Enum.GetValues(typeof(T)))
                 {
-                    Console.WriteLine($"{(int)value}. {value}");
+                    Console.WriteLine($"{(int)value}. {value}");// Displays options for the enum
                 }
                 Console.Write("Enter your choice (number): ");
-                string input = Console.ReadLine();
+                string? input = Console.ReadLine();
                 if (int.TryParse(input, out int selectedValue) && Enum.IsDefined(typeof(T), selectedValue))
                 {
-                    return (T)(object)selectedValue;
+                    return (T)(object)selectedValue;// Returns the selected enum value
                 }
                 Console.WriteLine("Invalid input. Please try again.");
             }
@@ -232,13 +245,13 @@ namespace DalTest
             switch (entityName)
             {
                 case "volunteer":
-                    ReadAllVolunteer();
+                    ReadAllVolunteers();
                     break;
                 case "call":
-                    //ReadAllCall();
+                    ReadAllCalls();
                     break;
                 case "assignmant":
-                    //ReadAllAssignmant();
+                    ReadAllAssignmants();
                     break;
                 default:
                     break;
@@ -329,7 +342,7 @@ namespace DalTest
             Console.WriteLine(volunteer);
         }
 
-        private static void ReadAllVolunteer()
+        private static void ReadAllVolunteers()
         {
             IEnumerable<Volunteer> myVolunteers = s_dal.Volunteer.ReadAll();
             if (!myVolunteers.Any())
@@ -340,6 +353,32 @@ namespace DalTest
             foreach (var volunteer in myVolunteers)
             {
                 Console.WriteLine(volunteer);
+            }
+        }
+        private static void ReadAllCalls()
+        {
+            IEnumerable<Call> myCalls = s_dal.Call.ReadAll();
+            if (!myCalls.Any())
+            {
+                throw new DalsDoesNotExistException($"No Calls found");
+            }
+            Console.WriteLine("List of Calls:");
+            foreach (var call in myCalls)
+            {
+                Console.WriteLine(call);
+            }
+        }
+        private static void ReadAllAssignmants()
+        {
+            IEnumerable<Assignment> myAssignments = s_dal.Assignment.ReadAll();
+            if (!myAssignments.Any())
+            {
+                throw new DalsDoesNotExistException($"No Assignmant found");
+            }
+            Console.WriteLine("List of Calls:");
+            foreach (var assignmant in myAssignments)
+            {
+                Console.WriteLine(assignmant);
             }
         }
 
@@ -446,7 +485,6 @@ namespace DalTest
             int Id;
             while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
             s_dal.Volunteer.Delete(Id);
-            Console.WriteLine("yay");
         }
         private static void DeleteAllVolunteer()
         {

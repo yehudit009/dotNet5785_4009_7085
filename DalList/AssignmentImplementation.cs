@@ -3,6 +3,9 @@ using DalApi;
 using DO;
 using System.Collections.Generic;
 
+/// <summary>
+/// Implementing CRUD functions for Assignmant entity
+/// </summary>
 internal class AssignmentImplementation : IAssignment
 {
     public void Create(Assignment item)

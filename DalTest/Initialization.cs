@@ -4,19 +4,16 @@ using DO;
 
 public class Initialization
 {
-    //Method access fields
-    //private static ICall? s_dalCall;//stage1
-    //private static IVolunteer? s_dalVolunteer;
-    //private static IAssignment? s_dalAssignment;
-    //private static IConfig? s_dalConfig;
-    private static IDal? s_dal;
+    // Access to the data layer and a random number generator.
+    private static IDal? s_dal = new Dal.DalList(); // Stage 2
     private static readonly Random s_rand = new();
 
-    //Initializing the Volunteers lists
+    // Initializes a predefined list of volunteers with random attributes.
     private static void CreateVolunteers()
     {
+        // List of volunteer names.
         string[] volunteerNames =
-        {
+               {
             "Dani Levy", "Eli Amar", "Yair Cohen", "Ariela Levin", "Dina Klein",
             "Shira Israelof", "Tomer Katz", "Rina Green", "Yael Goldman",
             "Barak Shalev", "Omer Haddad", "Hila Peretz", "Eden Barkai",
@@ -37,57 +34,44 @@ public class Initialization
             ("606 Kaplan St, Be'er Sheva, Israel", 31.2510, 34.7913), // Be'er Sheva
             ("707 HaMasger St, Ashdod, Israel", 31.8018, 34.6482) // Ashdod
         };
-        bool managerAssigned = false; // משתנה לעקוב אם כבר הוקצה מנהל
-
+        // Array of addresses with GPS coordinates.
+        bool managerAssigned = false; // Tracks if a manager has already been assigned.
 
         foreach (var name in volunteerNames)
         {
             int id;
             do
             {
-                id = s_rand.Next(200000000, 400000000); // הגרלת תעודת זהות
-            } while (s_dal!.Volunteer.Read(id) != null);
+                id = s_rand.Next(200000000, 400000000); // Generate a random ID.
+            } while (s_dal.Volunteer.Read(id) != null);
 
-            // שדות נוספים
+            // Generate other volunteer attributes.
             string phoneNumber = $"05{s_rand.Next(0, 10)}-{s_rand.Next(1000000, 10000000)}";
             string email = $"{name.Replace(" ", ".").ToLower()}@example.com";
-            string? password = s_rand.Next(2) == 0 ? $"Pass{id}" : null; // לפעמים סיסמה ריקה
+            string? password = s_rand.Next(2) == 0 ? $"Pass{id}" : null;
 
-            // Assign a random address with its coordinates
             var selectedAddress = addressesWithCoordinates[s_rand.Next(addressesWithCoordinates.Length)];
 
-            // אם אין עדיין מנהל, המתנדב הנוכחי יהפוך למנהל, אחרת מתנדב רגיל
             var role = managerAssigned ? Enums.Role.Volunteer : Enums.Role.Manager;
-            managerAssigned = true; // לאחר שהוגדר מנהל, נעדכן שהוקצה מנהל
+            managerAssigned = true; // Ensure only one manager is assigned.
 
-            // Generate other fields
-            bool isActive = s_rand.NextDouble() > 0.2;  // 80% מתנדבים פעילים // האם פעיל
-            double? maxReadingDistance = s_rand.Next(1, 100); // מרחק מירבי
-            var distanceType = (Enums.DistanceType)(s_rand.Next(0, 2)); // הנחה - יש 2 סוגי מרחקים
+            bool isActive = s_rand.NextDouble() > 0.2; // 80% chance the volunteer is active.
+            double? maxReadingDistance = s_rand.Next(1, 100);
+            var distanceType = (Enums.DistanceType)(s_rand.Next(0, 2));
 
-            // יצירת מתנדב חדש והוספתו
+            // Create and add the volunteer to the data source.
             s_dal!.Volunteer.Create(new Volunteer(
-                id,
-                name,
-                phoneNumber,
-                email,
-                password,
-                selectedAddress.address,
-                selectedAddress.latitude,
-                selectedAddress.longitude,
-                role,
-                isActive,
-                maxReadingDistance,
-                distanceType
+                id, name, phoneNumber, email, password,
+                selectedAddress.address, selectedAddress.latitude, selectedAddress.longitude,
+                role, isActive, maxReadingDistance, distanceType
             ));
         }
     }
 
-    //Initializing the Call lists
+    // Initializes a list of calls with random data.
     private static void CreateCalls()
     {
-
-        // תיאורים אפשריים של קריאות
+        // List of optional call descriptions
         var callDescriptions = new[]
         {
         "Urgent emergency requiring immediate attention.",
@@ -95,110 +79,80 @@ public class Initialization
         "Request for general information regarding services."
     };
 
-        // רשימה של כתובות אפשריות
+        // List of call addresses
         var addresses = new[]
         {
         "123 Main St, CityA", "456 Oak St, CityB", "789 Pine St, CityC"
     };
-        // רשימת קריאות 
+
         var calls = new List<Call>();
 
         for (int i = 0; i < 50; i++)
         {
             var callType = (Enums.CallType)s_rand.Next(0, Enum.GetValues(typeof(Enums.CallType)).Length);
             string callDescription = callDescriptions[s_rand.Next(callDescriptions.Length)];
-
-            // בחירת כתובת רנדומלית
             string callAddress = addresses[s_rand.Next(addresses.Length)];
-            // קואורדינטות רנדומליות למיקום הקריאה
             double callLatitude = 31.5 + s_rand.NextDouble();
             double callLongitude = 34.5 + s_rand.NextDouble();
-
-            // זמן פתיחה רנדומלי של הקריאה (לפני הזמן הנוכחי)
             DateTime callOpenTime = DateTime.Now.AddMinutes(-s_rand.Next(30, 240));
-            // אם הקריאה לא הוקצתה (15 קריאות)
-            bool isAssigned = i < 35; // לפחות 15 קריאות לא הוקצו
-            // אם הקריאה פג תוקפן (5 קריאות)
-            DateTime? callCloseTime = null;
-            if (i >= 45) // לפחות 5 קריאות שפג תוקפן
-            {
-                callCloseTime = callOpenTime.AddMinutes(s_rand.Next(180, 300)); // קריאה שפג תוקפה
-            }
-            // הוספת הקריאה לרשימה
-            calls.Add(new Call(
-                0,
-                callType,
-                callDescription,
-                callAddress,
-                callLatitude,
-                callLongitude,
-                callOpenTime,
-                callCloseTime));
 
-            // יצירת קריאה אם היא לא הוקצתה (לפי תנאים)
-            if (!isAssigned)
+            bool isAssigned = i < 35;
+            DateTime? callCloseTime = null;
+            if (i >= 45)
             {
-                // קריאה לא הוקצתה (לא נעשה בה טיפול)
-                // אין צורך לשייך לה מתנדב
+                callCloseTime = callOpenTime.AddMinutes(s_rand.Next(180, 300));
             }
+
+            calls.Add(new Call(0, callType, callDescription, callAddress, callLatitude, callLongitude, callOpenTime, callCloseTime));
         }
-        // הוספת הקריאות למאגר
+
         foreach (var call in calls)
         {
             s_dal!.Call.Create(call);
         }
     }
-    //Initializing the Assignments lists
+
+    // Initializes a list of assignments between calls and volunteers.
     private static void CreateAssignments()
     {
         var existingCalls = s_dal!.Call.ReadAll();
         var existingVolunteers = s_dal!.Volunteer.ReadAll();
-        // מספר ההקצאות שתרצה ליצור
         int numberOfAssignments = 50;
-        // הגדרת סוגי סיום טיפול מתוך Enum
         var closeTypes = Enum.GetValues(typeof(Enums.CallCloseType)).Cast<Enums.CallCloseType>().ToArray();
 
         for (int i = 0; i < numberOfAssignments; i++)
         {
             int selectedCallIndex = s_rand.Next(0, existingCalls.Count() - 15);
             var selectedCall = existingCalls.ElementAt(selectedCallIndex);
-            // זמן טיפול (פתיחה רנדומלית אחרי זמן פתיחה של הקריאה)
             DateTime callOpenTime = selectedCall.CallOpenTime.AddMinutes(s_rand.Next(1, 60));
-
-            // זמן סיום וסוג סיום
             DateTime? callCloseTime = null;
             Enums.CallCloseType? callCloseType = null;
 
-            // חלק מהקריאות מסתיימות
             if (s_rand.Next(2) == 0)
             {
-                callCloseTime = callOpenTime.AddMinutes(s_rand.Next(10, 120)); // זמן סיום רנדומלי
-                callCloseType = closeTypes[s_rand.Next(closeTypes.Length)]; // סוג סיום אקראי מתוך Enum
+                callCloseTime = callOpenTime.AddMinutes(s_rand.Next(10, 120));
+                callCloseType = closeTypes[s_rand.Next(closeTypes.Length)];
             }
-            else // קריאות שלא טופלו בזמן
+            else
             {
-                callCloseType = Enums.CallCloseType.ManagerCancel; // קריאה לא טופלה בזמן - בוטלה ע"י מנהל
+                callCloseType = Enums.CallCloseType.ManagerCancel;
             }
-            // בחירת מתנדב רנדומלי
+
             int selectedVolunteerIndex = s_rand.Next(0, existingVolunteers.Count() - 5);
             int volunteerId = existingVolunteers.ElementAt(selectedVolunteerIndex).VolunteerId;
 
-            // יצירת הקצאה חדשה והוספתה
             s_dal!.Assignment.Create(new Assignment(
-                0,
-            selectedCall.CallId,
-            volunteerId,
-            callOpenTime,
-            callCloseTime,
-            callCloseType
+                0, selectedCall.CallId, volunteerId,
+                callOpenTime, callCloseTime, callCloseType
             ));
         }
     }
 
-    public static void Do(IDal dal) //stage 2
-    {        
+    // Main method for initializing the entire database.
+    public static void Do(IDal dal) // Stage 2
+    {
         Console.WriteLine("Reset Configuration values and List values...");
-        s_dal.ResetDB(); //stage 2
+        s_dal?.ResetDB(); // Stage 2
         Console.WriteLine("Initializing list ...");
         CreateVolunteers();
         CreateCalls();

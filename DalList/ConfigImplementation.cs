@@ -1,15 +1,32 @@
 ﻿namespace Dal;
 using DalApi;
+
+/// <summary>
+/// Implementation of the IConfig interface for managing configuration settings.
+/// </summary>
 internal class ConfigImplementation : IConfig
 {
-    public DateTime Clock { 
+    /// <summary>
+    /// Gets or sets the current clock setting.
+    /// </summary>
+    public DateTime Clock
+    {
         get => Config.Clock;
-        set => Config.Clock = value; 
+        set => Config.Clock = value;
     }
-    public TimeSpan RiskRange {
+
+    /// <summary>
+    /// Gets or sets the risk range time span.
+    /// </summary>
+    public TimeSpan RiskRange
+    {
         get => Config.RiskRange;
         set => Config.RiskRange = value;
     }
+
+    /// <summary>
+    /// Resets all configuration settings to their default state.
+    /// </summary>
     public void Reset()
     {
         Config.Reset();

@@ -3,6 +3,9 @@ using DalApi;
 using DO;
 using System.Collections.Generic;
 
+/// <summary>
+/// Implementing CRUD functions for Call entity
+/// </summary>
 internal class CallImplementation : ICall
 {
     public void Create(Call item)
@@ -11,12 +14,13 @@ internal class CallImplementation : ICall
         Call CopyItem = item with { CallId = newId };
         DataSource.Calls.Add(CopyItem);
     }
+
     public void Delete(int id)
     {
         Call? TempVol = Read(id);
         if (TempVol == null)
         {
-            throw new DalDoesNotExistException($"Call with ID={id} does not exists");
+            throw new DalDoesNotExistException($"Call with ID={id} does not exist");
         }
         else
         {
@@ -37,6 +41,7 @@ internal class CallImplementation : ICall
         Call? TempVol = DataSource.Calls.FirstOrDefault(obj => obj.CallId == id);
         return TempVol;
     }
+
     public Call? Read(Func<Call, bool> filter) //stage 2
     {
         return DataSource.Calls.FirstOrDefault(filter);
@@ -45,6 +50,7 @@ internal class CallImplementation : ICall
         => filter == null
             ? DataSource.Calls.Select(item => item)
             : DataSource.Calls.Where(filter);
+
 
     public void Update(Call item)
     {
