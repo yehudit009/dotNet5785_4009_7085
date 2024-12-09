@@ -3,25 +3,24 @@ using DalApi;
 using DO;
 using System.Collections.Generic;
 
-public class VolunteerImplementation : IVolunteer
+internal class VolunteerImplementation : IVolunteer
 {
     public void Create(Volunteer item)
     {
-        Volunteer? TempVol = DataSource.Volunteers.SingleOrDefault(obj => obj.VolunteerId == item.VolunteerId);
-        if (TempVol == null)
-        {
-            DataSource.Volunteers.Add(item);
-        }
-        else
-        {
-            throw new NotImplementedException($"An Volunteer with ID={item.VolunteerId} allready exist");
-        }
+        //for entities with normal id (not auto id)
+        if (Read(item.VolunteerId) is not null)
+            throw new DalAlreadyExistsException($"Volunteer with ID={item.VolunteerId} already exists");
+        DataSource.Volunteers.Add(item);
     }
 
     public void Delete(int id)
     {
         Volunteer? TempVol = Read(id);
-        if (TempVol != null)
+        if (TempVol == null)
+        {
+            throw new DalDoesNotExistException($"Volunteer with ID={id} does not exists");
+        }
+        else
         {
             DataSource.Volunteers.Remove(TempVol);
         }
@@ -37,16 +36,18 @@ public class VolunteerImplementation : IVolunteer
 
     public Volunteer? Read(int id)
     {
-        Volunteer? TempVol = DataSource.Volunteers.SingleOrDefault(obj => obj.VolunteerId == id);
+        Volunteer? TempVol = DataSource.Volunteers.FirstOrDefault(obj => obj.VolunteerId == id);
         return TempVol;
     }
 
-    public List<Volunteer> ReadAll()
+    public Volunteer? Read(Func<Volunteer, bool> filter) //stage 2
     {
-        Console.WriteLine("hi");
-        return new List<Volunteer>(DataSource.Volunteers);
+        return DataSource.Volunteers.FirstOrDefault(filter);
     }
-
+    public IEnumerable<Volunteer> ReadAll(Func<Volunteer, bool>? filter = null) //stage 2
+        => filter == null
+            ? DataSource.Volunteers.Select(item => item)
+            : DataSource.Volunteers.Where(filter);
     public void Update(Volunteer item)
     {
         Delete(item.VolunteerId);

@@ -5,13 +5,10 @@ using static DO.Enums;
 
 namespace DalTest
 {
-    class Program
+    internal class Program
     {
         // Static fields for DAL interfaces
-        private static IVolunteer? s_dalVolunteer = new VolunteerImplementation(); //stage 1
-        private static ICall? s_dalCall = new CallImplementation(); //stage 1
-        private static IAssignment? s_dalAssignment = new AssignmentImplementation(); //stage 1
-        private static IConfig? s_dalConfig = new ConfigImplementation(); //stage 1
+        static readonly IDal s_dal = new Dal.DalList(); //stage 2
         static void Main(string[] args)
         {
             try
@@ -36,13 +33,13 @@ namespace DalTest
                         Environment.Exit(0);
                         return;
                     case Enums.MainMenuOption.VolunteerMenu:
-                        HandleSubMenu("volunteer", s_dalVolunteer);
+                        HandleSubMenu("volunteer");
                         break;
                     case Enums.MainMenuOption.CallMenu:
-                        HandleSubMenu("call", s_dalCall);
+                        HandleSubMenu("call");
                         break;
                     case Enums.MainMenuOption.AssignmantMenu:
-                        HandleSubMenu("assignmant", s_dalAssignment);
+                        HandleSubMenu("assignmant");
                         break;
                     case Enums.MainMenuOption.InitializeData:
                         DoInitialization();
@@ -51,7 +48,7 @@ namespace DalTest
                         ShowAllData();
                         break;
                     case Enums.MainMenuOption.ConfigMenu:
-                        HandleConfigSubMenu(s_dalConfig);
+                        HandleConfigSubMenu();
                         break;
                     case Enums.MainMenuOption.ResetDatabase:
                         ResetDatabase();
@@ -65,7 +62,7 @@ namespace DalTest
         private static void DoInitialization()
         {
             Console.WriteLine("Initializing database...");
-            Initialization.Do(s_dalAssignment, s_dalCall, s_dalVolunteer, s_dalConfig);
+            Initialization.Do(s_dal);
         }
         private static void ShowAllData()
         {
@@ -74,7 +71,7 @@ namespace DalTest
             //ReadAllCalls();
             //ReadAllAssignmant();
         }
-        private static void HandleConfigSubMenu(object? dalConfig)
+        private static void HandleConfigSubMenu()
         {
             while (true)
             {
@@ -112,35 +109,35 @@ namespace DalTest
         }
         private static void updateClockByMinute(int minute)
         {
-            DateTime currentClock = s_dalConfig.Clock;
+            DateTime currentClock = s_dal.Config.Clock;
             DateTime updatedClock = currentClock + TimeSpan.FromMinutes(minute);
-            s_dalConfig.Clock = updatedClock;
-            Console.WriteLine($"System clock advanced by {minute} minute(s). Current clock: {s_dalConfig.Clock}");
+            s_dal.Config.Clock = updatedClock;
+            Console.WriteLine($"System clock advanced by {minute} minute(s). Current clock: {s_dal.Config.Clock}");
         }
         private static void updateClockByHour(int hour)
         {
-            DateTime currentClock = s_dalConfig.Clock;
+            DateTime currentClock = s_dal.Config.Clock;
             DateTime updatedClock = currentClock + TimeSpan.FromHours(hour);
-            s_dalConfig.Clock = updatedClock;
-            Console.WriteLine($"System clock advanced by {hour} hour(s). Current clock: {s_dalConfig.Clock}");
+            s_dal.Config.Clock = updatedClock;
+            Console.WriteLine($"System clock advanced by {hour} hour(s). Current clock: {s_dal.Config.Clock}");
         }
         private static void ShowCurrentTime()
         {
-            Console.WriteLine($"Current clock: {s_dalConfig.Clock}");
+            Console.WriteLine($"Current clock: {s_dal.Config.Clock}");
         }
         private static void ResetAllConfig()
         {
-            s_dalConfig.Reset();
+            s_dal.Config.Reset();
         }
         private static void ResetDatabase()
         {
             Console.WriteLine("Resetting database...");
-            s_dalVolunteer?.DeleteAll();
-            s_dalCall?.DeleteAll();
-            s_dalAssignment?.DeleteAll();
-            s_dalConfig?.Reset();
+            s_dal.Volunteer?.DeleteAll();
+            s_dal.Call?.DeleteAll();
+            s_dal.Assignment?.DeleteAll();
+            s_dal.Config?.Reset();
         }
-        private static void HandleSubMenu(string entityName, object? dalObject)
+        private static void HandleSubMenu(string entityName)
         {
             while (true)
             {
@@ -153,22 +150,22 @@ namespace DalTest
                         RunMainMenu();
                         return;
                     case Enums.SubMenuOption.Create:
-                        HandleCreate(entityName, dalObject);
+                        HandleCreate(entityName);
                         break;
                     case Enums.SubMenuOption.Read:
-                        HandleRead(entityName, dalObject);
+                        HandleRead(entityName);
                         break;
                     case Enums.SubMenuOption.ReadAll:
-                        HandleReadAll(entityName, dalObject);
+                        HandleReadAll(entityName);
                         break;
                     case Enums.SubMenuOption.Update:
-                        HandleUpdate(entityName, dalObject);
+                        HandleUpdate(entityName);
                         break;
                     case Enums.SubMenuOption.Delete:
-                        HandleDelete(entityName, dalObject);
+                        HandleDelete(entityName);
                         break;
                     case Enums.SubMenuOption.DeleteAll:
-                        HandleDeleteAll(entityName, dalObject);
+                        HandleDeleteAll(entityName);
                         break;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
@@ -193,7 +190,7 @@ namespace DalTest
                 Console.WriteLine("Invalid input. Please try again.");
             }
         }
-        private static void HandleCreate(string entityName, object dalObject)
+        private static void HandleCreate(string entityName )
         {
             Console.WriteLine($"Creating a new {entityName}...");
             switch (entityName)
@@ -211,7 +208,7 @@ namespace DalTest
                     break;
             }
         }
-        private static void HandleRead(string entityName, object dalObject)
+        private static void HandleRead(string entityName)
         {
             Console.WriteLine($"Reading {entityName} by ID...");
             switch (entityName)
@@ -229,7 +226,7 @@ namespace DalTest
                     break;
             }
         }
-        private static void HandleReadAll(string entityName, object dalObject)
+        private static void HandleReadAll(string entityName)
         {
             Console.WriteLine($"Reading all {entityName}s...");
             switch (entityName)
@@ -247,7 +244,7 @@ namespace DalTest
                     break;
             }
         }
-        private static void HandleUpdate(string entityName, object dalObject)
+        private static void HandleUpdate(string entityName)
         {
             Console.WriteLine($"Updating {entityName}...");
             switch (entityName)
@@ -265,7 +262,7 @@ namespace DalTest
                     break;
             }
         }
-        private static void HandleDelete(string entityName, object dalObject)
+        private static void HandleDelete(string entityName)
         {
             Console.WriteLine($"Deleting {entityName} by ID...");
             switch (entityName)
@@ -283,7 +280,7 @@ namespace DalTest
                     break;
             }
         }
-        private static void HandleDeleteAll(string entityName, object dalObject)
+        private static void HandleDeleteAll(string entityName)
         {
             Console.WriteLine($"Deleting all {entityName}s...");
             switch (entityName)
@@ -317,48 +314,45 @@ namespace DalTest
             Console.WriteLine("Enter your Location: ");
             string Location = Console.ReadLine();
             Volunteer volunteer = new Volunteer(Id, Name, PhoneNumber, Email, Password, Location, null, null, null, false, null, null);
-            s_dalVolunteer.Create(volunteer);
+            s_dal.Volunteer.Create(volunteer);
         }
         private static void ReadVolunteer()
         {
             Console.WriteLine("Enter Id: ");
-            int Id;
-            while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
-            Volunteer My = s_dalVolunteer.Read(Id);
-            if (My == null)
+            int id;
+            while (!int.TryParse(Console.ReadLine(), out id)) { Console.WriteLine("Enter Valid Id"); }
+            Volunteer? volunteer = s_dal.Volunteer.Read(v => v.VolunteerId == id);
+            if (volunteer == null)
             {
-                throw new NotImplementedException($"An Volunteer with such ID={Id} does not exist");
-
+                throw new DalDoesNotExistException($"Volunteer with ID={id} does not exists");
             }
-            else
-            {
-                Console.WriteLine(My);
-            }
+            Console.WriteLine(volunteer);
         }
+
         private static void ReadAllVolunteer()
         {
-            List<Volunteer> myList = s_dalVolunteer.ReadAll();
-            if (myList.Count == 0)
+            IEnumerable<Volunteer> myVolunteers = s_dal.Volunteer.ReadAll();
+            if (!myVolunteers.Any())
             {
-                throw new NotImplementedException($"no Volunteers found");
-                return;
+                throw new DalsDoesNotExistException($"No volunteers found");
             }
             Console.WriteLine("List of Volunteers:");
-            foreach (var volunteer in myList)
+            foreach (var volunteer in myVolunteers)
             {
                 Console.WriteLine(volunteer);
             }
         }
+
         private static void UpdateVolunteer()
         {
             Console.WriteLine("Enter your Id: ");
             int Id;
             while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
-            Volunteer volunteer = s_dalVolunteer.Read(Id);
+            Volunteer volunteer = s_dal.Volunteer.Read(Id);
             Volunteer CopyItem = volunteer;
             if (volunteer == null)
             {
-                throw new NotImplementedException($"An Volunteer with such ID={Id} does not exist");
+                throw new DalDoesNotExistException($"Volunteer with such ID={Id} does not exist");
                 return;
             }
             Enums.VolunteerProp choice = GetEnumFromUser<Enums.VolunteerProp>();
@@ -443,7 +437,7 @@ namespace DalTest
                     Console.WriteLine("Invalid choice.");
                     break;
             }
-            s_dalVolunteer.Update(CopyItem);
+            s_dal.Volunteer.Update(CopyItem);
             Console.WriteLine("Volunteer updated successfully.");
         }
         private static void DeleteVolunteer()
@@ -451,12 +445,12 @@ namespace DalTest
             Console.WriteLine("Enter Id: ");
             int Id;
             while (!int.TryParse(Console.ReadLine(), out Id)) { Console.WriteLine("Enter Valid Id"); }
-            s_dalVolunteer.Delete(Id);
+            s_dal.Volunteer.Delete(Id);
             Console.WriteLine("yay");
         }
         private static void DeleteAllVolunteer()
         {
-            s_dalVolunteer.DeleteAll();
+            s_dal.Volunteer.DeleteAll();
         }
     }
 }

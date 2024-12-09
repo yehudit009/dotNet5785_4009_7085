@@ -1,15 +1,15 @@
 ﻿namespace DalTest;
 using DalApi;
 using DO;
-using Microsoft.VisualBasic;
 
 public class Initialization
 {
     //Method access fields
-    private static ICall? s_dalCall;
-    private static IVolunteer? s_dalVolunteer;
-    private static IAssignment? s_dalAssignment;
-    private static IConfig? s_dalConfig;
+    //private static ICall? s_dalCall;//stage1
+    //private static IVolunteer? s_dalVolunteer;
+    //private static IAssignment? s_dalAssignment;
+    //private static IConfig? s_dalConfig;
+    private static IDal? s_dal;
     private static readonly Random s_rand = new();
 
     //Initializing the Volunteers lists
@@ -46,7 +46,7 @@ public class Initialization
             do
             {
                 id = s_rand.Next(200000000, 400000000); // הגרלת תעודת זהות
-            } while (s_dalVolunteer!.Read(id) != null);
+            } while (s_dal!.Volunteer.Read(id) != null);
 
             // שדות נוספים
             string phoneNumber = $"05{s_rand.Next(0, 10)}-{s_rand.Next(1000000, 10000000)}";
@@ -66,7 +66,7 @@ public class Initialization
             var distanceType = (Enums.DistanceType)(s_rand.Next(0, 2)); // הנחה - יש 2 סוגי מרחקים
 
             // יצירת מתנדב חדש והוספתו
-            s_dalVolunteer!.Create(new Volunteer(
+            s_dal!.Volunteer.Create(new Volunteer(
                 id,
                 name,
                 phoneNumber,
@@ -145,14 +145,14 @@ public class Initialization
         // הוספת הקריאות למאגר
         foreach (var call in calls)
         {
-            s_dalCall!.Create(call);
+            s_dal!.Call.Create(call);
         }
     }
     //Initializing the Assignments lists
     private static void CreateAssignments()
     {
-        var existingCalls = s_dalCall!.ReadAll();
-        var existingVolunteers = s_dalVolunteer!.ReadAll();
+        var existingCalls = s_dal!.Call.ReadAll();
+        var existingVolunteers = s_dal!.Volunteer.ReadAll();
         // מספר ההקצאות שתרצה ליצור
         int numberOfAssignments = 50;
         // הגדרת סוגי סיום טיפול מתוך Enum
@@ -160,14 +160,12 @@ public class Initialization
 
         for (int i = 0; i < numberOfAssignments; i++)
         {
-            // בחירת קריאה רנדומלית
-            var call = existingCalls[s_rand.Next(existingCalls.Count)];
-            int callId = call.CallId;
-            // בחירת מתנדב רנדומלי
-            var volunteer = existingVolunteers[s_rand.Next(existingVolunteers.Count)];
-            int volunteerId = volunteer.VolunteerId;
-            // זמן טיפול (פתיחה וסיום)
-            DateTime callOpenTime = call.CallOpenTime.AddMinutes(s_rand.Next(1, 60)); // התחלה אחרי זמן הפתיחה של הקריאה
+            int selectedCallIndex = s_rand.Next(0, existingCalls.Count() - 15);
+            var selectedCall = existingCalls.ElementAt(selectedCallIndex);
+            // זמן טיפול (פתיחה רנדומלית אחרי זמן פתיחה של הקריאה)
+            DateTime callOpenTime = selectedCall.CallOpenTime.AddMinutes(s_rand.Next(1, 60));
+
+            // זמן סיום וסוג סיום
             DateTime? callCloseTime = null;
             Enums.CallCloseType? callCloseType = null;
 
@@ -181,31 +179,26 @@ public class Initialization
             {
                 callCloseType = Enums.CallCloseType.ManagerCancel; // קריאה לא טופלה בזמן - בוטלה ע"י מנהל
             }
+            // בחירת מתנדב רנדומלי
+            int selectedVolunteerIndex = s_rand.Next(0, existingVolunteers.Count() - 5);
+            int volunteerId = existingVolunteers.ElementAt(selectedVolunteerIndex).VolunteerId;
 
             // יצירת הקצאה חדשה והוספתה
-            s_dalAssignment!.Create(new Assignment(
+            s_dal!.Assignment.Create(new Assignment(
                 0,
-                callId,
-                volunteerId,
-                callOpenTime,
-                callCloseTime,
-                callCloseType 
+            selectedCall.CallId,
+            volunteerId,
+            callOpenTime,
+            callCloseTime,
+            callCloseType
             ));
         }
     }
 
-    public static void Do(IAssignment? dalIAssignment, ICall? dalCall, IVolunteer? dalVolunteer, IConfig? dalConfig) //stage 1
-    {
-        s_dalAssignment = dalIAssignment ?? throw new NullReferenceException("DAL object can not be null!"); //stage 1
-        s_dalCall = dalCall ?? throw new NullReferenceException("DAL object can not be null!"); //stage 1
-        s_dalVolunteer = dalVolunteer ?? throw new NullReferenceException("DAL object can not be null!");
-
+    public static void Do(IDal dal) //stage 2
+    {        
         Console.WriteLine("Reset Configuration values and List values...");
-        s_dalAssignment.DeleteAll(); //stage 1
-        s_dalCall.DeleteAll();
-        s_dalVolunteer.DeleteAll();
-        //s_dalConfig.Reset(); //stage 1
-        //...
+        s_dal.ResetDB(); //stage 2
         Console.WriteLine("Initializing list ...");
         CreateVolunteers();
         CreateCalls();

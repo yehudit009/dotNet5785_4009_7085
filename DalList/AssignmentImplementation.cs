@@ -3,7 +3,7 @@ using DalApi;
 using DO;
 using System.Collections.Generic;
 
-public class AssignmentImplementation : IAssignment
+internal class AssignmentImplementation : IAssignment
 {
     public void Create(Assignment item)
     {
@@ -16,7 +16,7 @@ public class AssignmentImplementation : IAssignment
         Assignment? TempVol = Read(id);
         if (TempVol == null)
         {
-            throw new NotImplementedException($"An Assignment with ID={id} does not exist");
+            throw new DalDoesNotExistException($"Assignmant with ID={id} does not exists");
         }
         else
         {
@@ -34,14 +34,17 @@ public class AssignmentImplementation : IAssignment
 
     public Assignment? Read(int id)
     {
-        Assignment? TempVol = DataSource.Assignments.SingleOrDefault(obj => obj.AssignmentId == id);
+        Assignment? TempVol = DataSource.Assignments.FirstOrDefault(obj => obj.AssignmentId == id);
         return TempVol;
     }
-
-    public List<Assignment> ReadAll()
+    public Assignment? Read(Func<Assignment, bool> filter) //stage 2
     {
-        return new List<Assignment>(DataSource.Assignments);
+        return DataSource.Assignments.FirstOrDefault(filter);
     }
+    public IEnumerable<Assignment> ReadAll(Func<Assignment, bool>? filter = null) //stage 2
+        => filter == null
+            ? DataSource.Assignments.Select(item => item)
+            : DataSource.Assignments.Where(filter);
 
     public void Update(Assignment item)
     {
