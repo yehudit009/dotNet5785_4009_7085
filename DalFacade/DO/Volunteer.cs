@@ -34,4 +34,9 @@ public record Volunteer
 {
     /// Default constructor
     public Volunteer() : this(0, "", "", "", null, null, null, null, null, false, null, null) { }
+    public string Address { get; set; }
+    public string Phone { get; set; }
+    public bool IsAvailable { get; set; }
+    public DateTime StartDate { get; set; }
 }
+

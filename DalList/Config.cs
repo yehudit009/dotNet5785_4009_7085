@@ -1,7 +1,8 @@
 ﻿namespace Dal;
 
 /// <summary>
-/// Static configuration class that manages unique IDs, clock settings, and risk range.
+/// Static configuration class that manages unique IDs, clock settings, and 
+/// range.
 /// </summary>
 internal static class Config
 {
@@ -17,15 +18,10 @@ internal static class Config
     /// Represents the current time used in the system.
     internal static DateTime Clock { get; set; } = DateTime.Now;
 
-    /// Represents the risk range time span for certain operations.
-    internal static TimeSpan RiskRange { get; set; } = TimeSpan.Zero;
-
     /// Resets all configurations to their initial state.
     internal static void Reset()
     {
-        nextCallId = firstCallId;
-        nextAssignmentId = firstAssignmentId;
+        nextAssignmentId = firstCallId;
         Clock = DateTime.Now;
-        RiskRange = TimeSpan.Zero;
     }
 }
