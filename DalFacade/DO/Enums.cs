@@ -18,7 +18,7 @@ public static class Enums
     public enum CallCloseType
     {
         Handled,      // טופלה
-        SelfCancel,   // ביטול עצמי
+        ExpiredCancel,   // ביטול עצמי
         ManagerCancel // ביטול על ידי מנהל
     }
     public enum Role

@@ -8,7 +8,9 @@ namespace DalTest
     internal class Program
     {
         // Static fields for DAL interfaces
-        static readonly IDal s_dal = new Dal.DalList(); //stage 2
+        //static readonly IDal s_dal = new Dal.DalList(); //stage 2
+        static readonly IDal s_dal = new Dal.DalXml(); //stage 3
+
         static void Main(string[] args)
         {
             try
