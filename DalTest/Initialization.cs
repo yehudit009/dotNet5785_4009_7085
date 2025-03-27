@@ -670,13 +670,16 @@ public static class Initialization
         s_dal = dal ?? throw new NullReferenceException("DAL object can not be null!"); // stage 2
         Console.WriteLine("Reset Configuration values and List values...");
         s_dal.ResetDB(); //stage 2
-        CreateCalls();
-        Console.WriteLine("calls...");
+
 
         CreateVolunteers();
         Console.WriteLine("volunteers...");
 
+        CreateCalls();
+        Console.WriteLine("calls...");
+
         CreateAssignments();
         Console.WriteLine("assignments...");
+
     }
 }

@@ -1,2 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<data-config.xml />
+<config>
+  <NextCallId>0</NextCallId>
+  <NextAssignmentId>0</NextAssignmentId>
+  <Clock>27/03/2025 16:26:28</Clock>
+</config>
